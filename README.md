@@ -25,3 +25,4 @@ The project is curretly running on the following hardware
 
 - Computer vision based model to detect movements to create a position hold image based
 - Reinforcement Learning model to ensure correct position hold (observation_space = sensors, action_space = motors)
+- Line edge detection to work in low visibility environment
