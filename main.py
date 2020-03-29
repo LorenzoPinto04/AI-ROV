@@ -50,10 +50,6 @@ def sketch_horizon_line(image, degree, xcenter, ycenter):
     xnew = int(ycenter + lenght*sin(theta_rad))
     cv2.line(image,(xcenter,ycenter),(xnew,ynew),(255,0,0),1)
 
-def point_pos(x0, y0, d, theta):
-    theta_rad = pi/2 - radians(theta)
-    return x0 + d*cos(theta_rad), y0 + d*sin(theta_rad)
-
 
 def display_telemetry(image, dict_sensors):
     cv2.putText(image,"Pressure: {0:.1f}".format(dict_sensors['pressure']), (10,10), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
