@@ -23,6 +23,9 @@ manual = True
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
+white = (255, 255, 255)
+off = (0, 0, 0)
+
 
 # examples using (x, y, pixel)
 
@@ -31,11 +34,25 @@ motor_front_sx = ((2,7),(1,7), (2,6), (1,6))
 motor_back_dx = ((7,0),(7,1), (6,0), (6,1))
 motor_back_sx = ((7,7),(6,6), (6,7), (7,6))
 motor_vert = ((3,3),(4,4), (3,4), (4,3))
+front_lights = ((0,1),(0,6))
 
 def motor_react(motor, color):
     for i in motor:
         sense.set_pixel(i[0], i[1], color)
+    return
+
+
+def lights(status):
+    if status:
+        motor_react(front_lights, white)
         return
+    motor_react(front_lights, off)
+
+def write_on_screen(image, text, value, position):
+    cv2.putText(image,text.format(value), position, cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
+
+    
+
 
 def sketch_horizon_line(image, degree, xcenter, ycenter):
     lenght = 80
@@ -52,14 +69,18 @@ def sketch_horizon_line(image, degree, xcenter, ycenter):
 
 
 def display_telemetry(image, dict_sensors):
-    cv2.putText(image,"Pressure: {0:.1f}".format(dict_sensors['pressure']), (10,10), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
-    cv2.putText(image,"Temperature: {0:.1f}".format(dict_sensors['temperature']), (10,20), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
-    cv2.putText(image,"Humidity: {0:.1f}%".format(dict_sensors['humidity']), (10,30), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
-    cv2.putText(image,"Light: {}".format(dict_sensors['light']), (10,40), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
-    cv2.putText(image, dict_sensors['direction'], (140,220), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
-    cv2.putText(image,"Roll: {0:.0f}".format(dict_sensors['orientation']['roll']), (10,50), cv2.FONT_HERSHEY_SIMPLEX, .3, 255)
+    write_on_screen(image, "Pressure: {0:.1f}", dict_sensors['pressure'], (10,10))
+    write_on_screen(image, "Temperature: {0:.1f}", dict_sensors['temperature'], (10,20))
+    write_on_screen(image, "Humidity: {0:.1f}%", dict_sensors['humidity'], (10,30))
+    write_on_screen(image, "Light: {}", dict_sensors['light'], (10,40))
+    write_on_screen(image, "", dict_sensors['direction'], (140,220))
+    write_on_screen(image, "Roll: {0:.0f}", dict_sensors['orientation']['roll'], (10,50))
+    write_on_screen(image, "Pitch: {0:.0f}", dict_sensors['orientation']['pitch'], (10,60))
+    write_on_screen(image, "Yaw: {0:.0f}", dict_sensors['orientation']['yaw'], (10,70))
+    write_on_screen(image, "North: {0:.0f}", dict_sensors['compass_north'], (10,80))
     roll_angle = dict_sensors['orientation']['roll']
     sketch_horizon_line(image, roll_angle, 150, 150)
+
 
     
 def get_dict_sensors(sense, values):
@@ -68,6 +89,7 @@ def get_dict_sensors(sense, values):
     values['temperature'] = sense.get_temperature()
     values['humidity'] = sense.get_humidity()
     values['orientation'] = sense.get_orientation()
+    values['compass_north'] = north = sense.get_compass()
     return values
     
 telemetry_dict = {'light' : 'OFF'}        
@@ -79,7 +101,10 @@ dict_sensors = 0
 
 direction = ''
 
+a = 0
+
 while True:
+    a += 1
     telemetry_dict['direction'] = direction
     frame = vs.read()
     dict_sensors = get_dict_sensors(sense, telemetry_dict)
@@ -88,13 +113,16 @@ while True:
     
     # The event listener will be running in this block
     key = cv2.waitKey(1) & 0xFF
-
     if key == ord('q'):
         break
+    if key == ord("p"):
+        cv2.waitKey(0)
     if key == ord('o'):
         dict_sensors['light'] = 'ON'
-    if key == ord('p'):
+        lights(True)
+    if key == ord('i'):
         dict_sensors['light'] = 'OFF'
+        lights(False)
     if auto:
         if 0 < gyro['yaw'] < 180:
             motor_react(motor_back_dx, green)
@@ -107,18 +135,19 @@ while True:
         elif press < press_abs:
             motor_react(motor_vert, red)
     if manual:
+        sense.clear()
         direction = ''
-        if key == ord('e'):
+        if key == 82:
             direction = 'forward'
-            #motor_react(motor_back_dx, green)
-            #motor_react(motor_back_sx, green)
-        if key == ord('d'):
+            motor_react(motor_back_dx, green)
+            motor_react(motor_back_sx, green)
+        if key == 84:
             direction = 'backward'
             #motor_react(motor_back_dx, red)
             #motor_react(motor_back_sx, red)
-        if key == ord('s'):
+        if key == 81:
             direction = 'left'
-        if key == ord('f'):
+        if key == 83:
             direction = 'right'
         pass
 cv2.destroyAllWindows()
