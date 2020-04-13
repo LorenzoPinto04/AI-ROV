@@ -148,12 +148,14 @@ while True:
         if key == 27:
             print('[INFO] Programma interrotto')
             break
-        if key == 32:
+        if key == ord("p"):
             print('[INFO] Pause')
             cv2.waitKey(0)
 
         # MOVEMENTS 
         # right pad
+        if key != 255:
+            print(key)
         if key == ord('e'):
             direction = 'forward'
         if key == ord('d'):
@@ -163,18 +165,14 @@ while True:
         if key == ord('s'):
             direction = 'left'
         # left  pad
-        if key == 112:
+        if key == ord('i'):
             direction = 'up'
-        if key == 210:
-            direction = 'down'
-        if key == ord('l'):
-            direction = 'shift_left'
-        if key == 192:
-            direction = 'shift_right'
         if key == ord('k'):
-            direction = 'roll_left'
-        if key == 217:
-            direction = 'roll_right'
+            direction = 'down'
+        if key == ord('j'):
+            direction = 'shift_left'
+        if key == ord('l'):
+            direction = 'shift_right'
         # LIGHTS
         if key == ord('n'):
             dict_sensors['light'] = 'ON'
