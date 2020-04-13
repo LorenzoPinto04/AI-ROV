@@ -1,29 +1,26 @@
 simulation_mode = True
 
-if not simulation_mode:
-    from sense_hat import SenseHat
-    from imutils.video import VideoStream
+from imutils.video import VideoStream
 import numpy as np
 import cv2
 import numpy as np
 import time
 from math import cos, sin, tan, pi, radians
 import pygame
+if not simulation_mode:
+    from sense_hat import SenseHat
+    sense = SenseHat()
+    sense.clear()
 
 sense = ''
 
-if not simulation_mode:
-    vs = VideoStream(usePiCamera=True).start()
-    time.sleep(2.0)
-    sense = SenseHat()
-    sense.clear()
-else:
-    vs = cv2.VideoCapture(0)
-
+vs = VideoStream(usePiCamera = not simulation_mode).start()
+#time.sleep(2.0)
 
 cv2.namedWindow("ROV", cv2.WINDOW_NORMAL)       
 cv2.resizeWindow('ROV', 600,600)
 pygame.init()  
+
 
 
 
@@ -131,7 +128,7 @@ a = 0
 while True:
     a += 1
     telemetry_dict['direction'] = direction
-    ret, frame = vs.read()
+    frame = vs.read()
     dict_sensors = get_dict_sensors(sense, telemetry_dict)
     display_telemetry(frame, dict_sensors)
     cv2.imshow("ROV", frame)
@@ -201,5 +198,3 @@ while True:
             lights(False)
 cv2.destroyAllWindows()
         
-    
-    
