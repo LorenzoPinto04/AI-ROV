@@ -1,4 +1,4 @@
-simulation_mode = True
+simulation_mode = False
 
 from imutils.video import VideoStream
 import numpy as np
@@ -7,13 +7,13 @@ import numpy as np
 import time
 from math import cos, sin, tan, pi, radians
 import pygame
+sense = ''
 if not simulation_mode:
     from sense_hat import SenseHat
     sense = SenseHat()
     sense.clear()
 
-sense = ''
-
+#vs = VideoStream(usePiCamera = not simulation_mode).start()
 vs = VideoStream(usePiCamera = not simulation_mode).start()
 #time.sleep(2.0)
 
@@ -96,7 +96,7 @@ def display_telemetry(image, dict_sensors):
     write_on_screen(image, "Roll: {0:.0f}", dict_sensors['orientation']['roll'], (10,50))
     write_on_screen(image, "Pitch: {0:.0f}", dict_sensors['orientation']['pitch'], (10,60))
     write_on_screen(image, "Yaw: {0:.0f}", dict_sensors['orientation']['yaw'], (10,70))
-    write_on_screen(image, "North: {0:.0f}", dict_sensors['compass_north'], (10,80))
+    #write_on_screen(image, "North: {0:.0f}", dict_sensors['compass_north'], (10,80))
     roll_angle = dict_sensors['orientation']['roll']
     sketch_horizon_line(image, roll_angle, 150, 150)
     return
@@ -106,12 +106,12 @@ def display_telemetry(image, dict_sensors):
 def get_dict_sensors(sense, values):
     if simulation_mode:
         return values
-    values['gyro'] = sense.get_gyroscope()
+    #values['gyro'] = sense.get_gyroscope()
     values['pressure'] = sense.get_pressure()
     values['temperature'] = sense.get_temperature()
     values['humidity'] = sense.get_humidity()
     values['orientation'] = sense.get_orientation()
-    values['compass_north'] = north = sense.get_compass()
+    #values['compass_north'] = north = sense.get_compass()
     return values
     
 telemetry_dict = {'light' : 'OFF'}        
@@ -133,7 +133,7 @@ while True:
     display_telemetry(frame, dict_sensors)
     cv2.imshow("ROV", frame)
     direction = ''
-
+    key = cv2.waitKey(1) & 0xFF
     if auto:
         if 0 < gyro['yaw'] < 180:
             motor_react(motor_back_dx, green)
@@ -185,7 +185,7 @@ while True:
             # The event listener will be running in this block
 
             '''
-        key = cv2.waitKey(1) & 0xFF
+        
         if key == ord('q'):
             break
         if key == ord("p"):
