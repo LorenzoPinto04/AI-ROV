@@ -1,22 +1,35 @@
-from sense_hat import SenseHat
+simulation_mode = True
+
+if not simulation_mode:
+    from sense_hat import SenseHat
+    from imutils.video import VideoStream
 import numpy as np
 import cv2
 import numpy as np
-from imutils.video import VideoStream
 import time
 from math import cos, sin, tan, pi, radians
+import pygame
 
-vs = VideoStream(usePiCamera=True).start()
-time.sleep(2.0)
+sense = ''
+
+if not simulation_mode:
+    vs = VideoStream(usePiCamera=True).start()
+    time.sleep(2.0)
+    sense = SenseHat()
+    sense.clear()
+else:
+    vs = cv2.VideoCapture(0)
+
+
 cv2.namedWindow("ROV", cv2.WINDOW_NORMAL)       
 cv2.resizeWindow('ROV', 600,600)
+pygame.init()  
 
 
-sense = SenseHat()
-sense.clear()
 
 auto = False
-manual = True
+use_keyboard = True
+use_controller = False
 
 
 
@@ -38,6 +51,9 @@ front_lights = ((0,1),(0,6))
 
 def motor_react(motor, color):
     for i in motor:
+        if simulation_mode:
+            print(motor, color)
+            continue
         sense.set_pixel(i[0], i[1], color)
     return
 
@@ -69,6 +85,12 @@ def sketch_horizon_line(image, degree, xcenter, ycenter):
 
 
 def display_telemetry(image, dict_sensors):
+    if simulation_mode:
+        sketch_horizon_line(image, 0, 150, 150)
+        write_on_screen(image, "Light: {}", dict_sensors['light'], (10,40))
+        write_on_screen(image, "", dict_sensors['direction'], (140,220))
+        write_on_screen(image, "", dict_sensors['direction'], (140,220))
+        return 
     write_on_screen(image, "Pressure: {0:.1f}", dict_sensors['pressure'], (10,10))
     write_on_screen(image, "Temperature: {0:.1f}", dict_sensors['temperature'], (10,20))
     write_on_screen(image, "Humidity: {0:.1f}%", dict_sensors['humidity'], (10,30))
@@ -80,10 +102,13 @@ def display_telemetry(image, dict_sensors):
     write_on_screen(image, "North: {0:.0f}", dict_sensors['compass_north'], (10,80))
     roll_angle = dict_sensors['orientation']['roll']
     sketch_horizon_line(image, roll_angle, 150, 150)
+    return
 
 
     
 def get_dict_sensors(sense, values):
+    if simulation_mode:
+        return values
     values['gyro'] = sense.get_gyroscope()
     values['pressure'] = sense.get_pressure()
     values['temperature'] = sense.get_temperature()
@@ -106,23 +131,12 @@ a = 0
 while True:
     a += 1
     telemetry_dict['direction'] = direction
-    frame = vs.read()
+    ret, frame = vs.read()
     dict_sensors = get_dict_sensors(sense, telemetry_dict)
     display_telemetry(frame, dict_sensors)
     cv2.imshow("ROV", frame)
-    
-    # The event listener will be running in this block
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        break
-    if key == ord("p"):
-        cv2.waitKey(0)
-    if key == ord('o'):
-        dict_sensors['light'] = 'ON'
-        lights(True)
-    if key == ord('i'):
-        dict_sensors['light'] = 'OFF'
-        lights(False)
+    direction = ''
+
     if auto:
         if 0 < gyro['yaw'] < 180:
             motor_react(motor_back_dx, green)
@@ -134,9 +148,30 @@ while True:
             motor_react(motor_vert, green)
         elif press < press_abs:
             motor_react(motor_vert, red)
-    if manual:
-        sense.clear()
-        direction = ''
+
+    key = 1
+    if use_keyboard:
+        '''
+        print('')
+        #pressed = pygame.key.get_pressed()
+        pressed = {}
+        events = pygame.event.get()
+        print(events)
+
+        if pressed[pygame.K_LEFT]:
+            direction = 'left'
+            print('left')
+        if pressed[pygame.K_UP]:
+            direction = 'forward'
+            print('forward')
+        if pressed[pygame.K_DOWN]:
+            direction = 'backward'
+            print('backward')
+        if pressed[pygame.K_RIGHT]:
+            direction = 'right'
+            print('right')
+        events = pygame.event.get()
+
         if key == 82:
             direction = 'forward'
             motor_react(motor_back_dx, green)
@@ -150,6 +185,20 @@ while True:
         if key == 83:
             direction = 'right'
         pass
+            # The event listener will be running in this block
+
+            '''
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            break
+        if key == ord("p"):
+            cv2.waitKey(0)
+        if key == ord('o'):
+            dict_sensors['light'] = 'ON'
+            lights(True)
+        if key == ord('i'):
+            dict_sensors['light'] = 'OFF'
+            lights(False)
 cv2.destroyAllWindows()
         
     
