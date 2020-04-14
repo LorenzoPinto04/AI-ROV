@@ -1,4 +1,4 @@
-simulation_mode = True
+simulation_mode = False
 
 from imutils.video import VideoStream
 import numpy as np
@@ -10,8 +10,10 @@ import pygame
 sense = ''
 if not simulation_mode:
     from sense_hat import SenseHat
-    sense = SenseHat()
-    sense.clear()
+else:
+    from sense_emu import SenseHat
+sense = SenseHat()
+sense.clear()
 
 #vs = VideoStream(usePiCamera = not simulation_mode).start()
 vs = VideoStream(usePiCamera = not simulation_mode).start()
