@@ -1,4 +1,5 @@
-simulation_mode = False
+# if you are executing the code from your raspberry with a cam module and a SenseHat connected set simulation = False, otherwise use the simulation mode
+simulation_mode = True
 
 from imutils.video import VideoStream
 import numpy as np
@@ -7,17 +8,16 @@ import numpy as np
 import time
 from math import cos, sin, tan, pi, radians
 import pygame
-sense = ''
 if not simulation_mode:
     from sense_hat import SenseHat
 else:
     from sense_emu import SenseHat
+    
 sense = SenseHat()
 sense.clear()
 
-#vs = VideoStream(usePiCamera = not simulation_mode).start()
 vs = VideoStream(usePiCamera = not simulation_mode).start()
-#time.sleep(2.0)
+time.sleep(1.0)
 
 cv2.namedWindow("ROV", cv2.WINDOW_NORMAL)       
 cv2.resizeWindow('ROV', 600,600)
@@ -50,9 +50,6 @@ front_lights = ((0,1),(0,6))
 
 def motor_react(motor, color):
     for i in motor:
-        if simulation_mode:
-            print(motor, color)
-            continue
         sense.set_pixel(i[0], i[1], color)
     return
 
@@ -84,11 +81,6 @@ def sketch_horizon_line(image, degree, xcenter, ycenter):
 
 
 def display_telemetry(image, dict_sensors):
-    if simulation_mode:
-        sketch_horizon_line(image, 0, 150, 150)
-        write_on_screen(image, "Light: {}", dict_sensors['light'], (10,40))
-        write_on_screen(image, "{}", dict_sensors['direction'], (140,220))
-        return 
     write_on_screen(image, "Pressure: {0:.1f}", dict_sensors['pressure'], (10,10))
     write_on_screen(image, "Temperature: {0:.1f}", dict_sensors['temperature'], (10,20))
     write_on_screen(image, "Humidity: {0:.1f}%", dict_sensors['humidity'], (10,30))
@@ -105,8 +97,6 @@ def display_telemetry(image, dict_sensors):
 
     
 def get_dict_sensors(sense, values):
-    if simulation_mode:
-        return values
     #values['gyro'] = sense.get_gyroscope()
     values['pressure'] = sense.get_pressure()
     values['temperature'] = sense.get_temperature()
