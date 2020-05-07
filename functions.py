@@ -1,5 +1,14 @@
+import params as p
 import cv2
 from math import cos, sin, tan, pi, radians
+
+if not p.simulation_mode:
+    from sense_hat import SenseHat
+else:
+    from sense_emu import SenseHat
+    
+sense = SenseHat()
+sense.clear()
 
 
 def motor_react(motor, color):
@@ -10,9 +19,9 @@ def motor_react(motor, color):
 
 def lights(status):
     if status:
-        motor_react(front_lights, white)
+        motor_react(p.front_lights, p.white)
         return
-    motor_react(front_lights, off)
+    motor_react(p.front_lights, p.off)
 
 def write_on_screen(image, text, value, position):
     cv2.putText(image,text.format(value), position, cv2.FONT_HERSHEY_SIMPLEX, .3, 255)

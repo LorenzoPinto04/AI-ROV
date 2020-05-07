@@ -1,6 +1,7 @@
 import functions as f
+import params as p
 # if you are executing the code from your raspberry with a cam module and a SenseHat connected set simulation = False, otherwise use the simulation mode
-simulation_mode = True
+simulation_mode = False
 
 from imutils.video import VideoStream
 import numpy as np
@@ -32,18 +33,6 @@ use_controller = False
 
 
 
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-white = (255, 255, 255)
-off = (0, 0, 0)
-
-motor_front_dx = ((2,0),(1,1), (2,1), (1,0))
-motor_front_sx = ((2,7),(1,7), (2,6), (1,6))
-motor_back_dx = ((7,0),(7,1), (6,0), (6,1))
-motor_back_sx = ((7,7),(6,6), (6,7), (7,6))
-motor_vert = ((3,3),(4,4), (3,4), (4,3))
-front_lights = ((0,1),(0,6))
 
     
 telemetry_dict = {'light' : 'OFF'}        
@@ -66,15 +55,15 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if auto:
         if 0 < gyro['yaw'] < 180:
-            f.motor_react(motor_back_dx, green)
-            f.motor_react(motor_back_sx, red)
+            f.motor_react(p.motor_back_dx, p.green)
+            f.motor_react(p.motor_back_sx, p.red)
         elif 180 < gyro['yaw'] < 360:
-            f.motor_react(motor_back_sx, green)
-            f.motor_react(motor_back_dx, red)
+            f.motor_react(p.motor_back_sx, p.green)
+            f.motor_react(p.motor_back_dx, p.red)
         if press > press_abs:
-            f.motor_react(motor_vert, green)
+            f.motor_react(p.motor_vert, p.green)
         elif press < press_abs:
-            f.motor_react(motor_vert, red)
+            f.motor_react(p.motor_vert, p.red)
     if use_keyboard:
         if key == 27:
             print('[INFO] Programma interrotto')
