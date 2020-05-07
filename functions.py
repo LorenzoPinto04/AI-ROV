@@ -13,7 +13,7 @@ sense.clear()
 
 def motor_react(motor, color):
     for i in motor:
-        sense.set_pixel(i[0], i[1], color)
+        pass
     return
 
 

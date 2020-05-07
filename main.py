@@ -76,6 +76,8 @@ while True:
         # right pad
         if key == ord('e'):
             direction = 'forward'
+            f.motor_react(p.motor_back_dx, p.green)
+            f.motor_react(p.motor_back_sx, p.red)
         if key == ord('d'):
             direction = 'backward'
         if key == ord('f'):
@@ -95,6 +97,7 @@ while True:
             direction = 'roll_left'
         if key == 217:
             direction = 'roll_right'
+
         # LIGHTS
         if key == ord('n'):
             dict_sensors['light'] = 'ON'
