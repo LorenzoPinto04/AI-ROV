@@ -7,7 +7,6 @@ import numpy as np
 import cv2
 import numpy as np
 import time
-import pygame
 if not simulation_mode:
     from sense_hat import SenseHat
 else:
@@ -21,10 +20,6 @@ time.sleep(1.0)
 
 cv2.namedWindow("ROV", cv2.WINDOW_NORMAL)       
 cv2.resizeWindow('ROV', 600,600)
-pygame.init()  
-
-
-
 
 auto = False
 use_keyboard = True
@@ -53,9 +48,9 @@ if auto:
     press_abs = sense.get_pressure()
 dict_sensors = 0
 
+
+
 direction = ''
-
-
 while True:
     telemetry_dict['direction'] = direction
     frame = vs.read()
@@ -113,7 +108,6 @@ while True:
         if key == ord('m'):
             dict_sensors['light'] = 'OFF'
             f.lights(False)
-
 
 cv2.destroyAllWindows()
         
